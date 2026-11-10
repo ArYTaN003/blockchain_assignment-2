@@ -88,6 +88,16 @@ section[id]{scroll-margin-top:56px;}
   font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:0.06em;
   border-bottom:1px solid var(--border-strong); padding-bottom:2px;
 }
+.hero-deploy{
+  margin-top:auto; display:inline-flex; align-items:center; gap:10px; align-self:flex-start;
+  font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; font-weight:700;
+  color:var(--ink); text-decoration:none; background:var(--lime); border:2px solid var(--ink);
+  padding:9px 15px; border-radius:2px; box-shadow:3px 3px 0 var(--ink);
+  transition:transform .15s, box-shadow .15s;
+}
+.hero-deploy:hover{transform:translate(-2px,-2px); box-shadow:5px 5px 0 var(--ink);}
+.hero-deploy:active{transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink);}
+.hero-deploy .hd-label{opacity:0.6; font-size:9px;}
 .hero-right{
   background:var(--ink); position:relative; overflow:hidden;
   display:flex; align-items:center; justify-content:center; min-height:440px;
@@ -415,6 +425,11 @@ footer .ft{font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--lime
         <span class="meta-chip">Stateless Clients</span>
         <span class="meta-chip">IPA Commitments</span>
       </div>
+      <a class="hero-deploy" href="https://arytan003.github.io/blockchain_assignment-2/" target="_blank" rel="noopener">
+        <span class="hd-label">Deployed&nbsp;link</span>
+        <span>arytan003.github.io/blockchain_assignment-2</span>
+        <span>↗</span>
+      </a>
     </div>
     <div class="hero-right">
       <div class="teamtree" id="teamtree">
@@ -957,6 +972,7 @@ const MEMBERS = [{"name": "Saptarshi", "src": "data:image/jpeg;base64,/9j/4AAQSk
     Object.entries(panels).forEach(([k,p])=>p.classList.toggle('active',k===t.dataset.tab));
     // let lab resize its svg when shown
     if(t.dataset.tab==='lab' && window.__labResize) window.__labResize();
+    if(t.dataset.tab==='practical' && window.__ptFit) window.__ptFit();
   }));
 })();
 
@@ -1189,11 +1205,234 @@ const MEMBERS = [{"name": "Saptarshi", "src": "data:image/jpeg;base64,/9j/4AAQSk
   $('ptZoomOut').addEventListener('click',()=>{const cur=ptUserZoom!=null?ptUserZoom:(parseFloat(getComputedStyle($('ptTreeInner')).getPropertyValue('--ptzoom'))||1);ptUserZoom=Math.max(0.3,cur-0.2);fitZoom();});
   $('ptZoomFit').addEventListener('click',()=>{ptUserZoom=null;fitZoom();});
   window.addEventListener('resize',()=>{if(ptUserZoom==null)fitZoom();});
+  // re-fit when the Practical tab becomes visible (it can't measure while display:none)
+  window.__ptFit=function(){ptUserZoom=null;requestAnimationFrame(()=>requestAnimationFrame(fitZoom));};
 
   async function init(){renderTable();renderEdit();renderSelect();try{await refreshTree();}catch(e){toast(e.message);}}
   init();
 })();
 
+</script>
+
+<!-- ══════════ GUIDED TOUR (cloud walkthrough) ══════════ -->
+<style>
+#tourLaunch{
+  position:fixed; left:20px; bottom:20px; z-index:450;
+  display:inline-flex; align-items:center; gap:9px; cursor:pointer;
+  font-family:'DM Mono',monospace; font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--ink); background:var(--lime); border:2px solid var(--ink);
+  padding:11px 16px; border-radius:30px; box-shadow:3px 3px 0 var(--ink);
+  transition:transform .15s, box-shadow .15s;
+}
+#tourLaunch:hover{transform:translate(-2px,-2px); box-shadow:5px 5px 0 var(--ink);}
+#tourLaunch:active{transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink);}
+#tourLaunch .tl-ico{font-size:14px;}
+
+#tourCatch{position:fixed; inset:0; z-index:580; display:none;}
+#tourRing{
+  position:fixed; z-index:590; display:none; border:3px solid var(--lime); border-radius:10px;
+  box-shadow:0 0 0 9999px rgba(10,10,10,0.58), 0 0 18px rgba(200,245,58,0.6);
+  pointer-events:none; transition:top .4s cubic-bezier(.16,1,.3,1), left .4s cubic-bezier(.16,1,.3,1), width .4s, height .4s;
+}
+#tourCloud{
+  position:fixed; z-index:600; width:min(340px,86vw);
+  opacity:0; transform:translateY(8px); transition:opacity .3s, transform .3s, top .4s cubic-bezier(.16,1,.3,1), left .4s cubic-bezier(.16,1,.3,1);
+  pointer-events:none;
+}
+#tourCloud.show{opacity:1; transform:none; pointer-events:auto;}
+#tourCloud .tc-shape{position:relative; filter:drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink)) drop-shadow(5px 6px 0 rgba(10,10,10,0.9));}
+#tourCloud .tc-body{position:relative; z-index:3; background:var(--paper); border-radius:28px; padding:22px 26px 20px;}
+.tc-puff{position:absolute; z-index:1; border-radius:50%; background:var(--paper);}
+.tc-pt{position:absolute; z-index:2; border-radius:50%; background:var(--paper);}
+.tc-head{display:flex; align-items:center; gap:9px; margin-bottom:9px;}
+.tc-badge{font-family:'DM Mono',monospace; font-size:9px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; background:var(--lime); color:var(--ink); padding:3px 8px; border-radius:2px;}
+.tc-title{font-family:'Bebas Neue',sans-serif; font-size:26px; line-height:1; letter-spacing:0.02em; color:var(--ink);}
+.tc-text{font-family:'DM Sans',sans-serif; font-size:13.5px; line-height:1.6; color:var(--slate-light); font-weight:300;}
+.tc-foot{display:flex; align-items:center; justify-content:space-between; margin-top:16px; gap:10px;}
+.tc-dots{display:flex; gap:5px;}
+.tc-dot{width:7px; height:7px; border-radius:50%; background:var(--border-strong);}
+.tc-dot.on{background:var(--rust);}
+.tc-btns{display:flex; align-items:center; gap:6px;}
+.tc-btn{font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.06em; cursor:pointer; border:2px solid var(--ink); border-radius:3px; padding:7px 12px; background:var(--paper); color:var(--ink); transition:transform .12s, box-shadow .12s;}
+.tc-btn:hover{transform:translate(-1px,-1px); box-shadow:2px 2px 0 var(--ink);}
+.tc-btn.primary{background:var(--lime);}
+.tc-skip{font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); background:none; border:none; cursor:pointer; text-decoration:underline;}
+
+/* first-open welcome popup */
+#tourWelcome{position:fixed; inset:0; z-index:700; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(10,10,10,0.6); backdrop-filter:blur(3px);}
+#tourWelcome.show{display:flex; animation:twFade .35s ease;}
+@keyframes twFade{from{opacity:0;} to{opacity:1;}}
+.tw-card{position:relative; width:min(560px,92vw); background:var(--paper); border:3px solid var(--ink); border-radius:10px; box-shadow:10px 10px 0 var(--ink); padding:40px 40px 32px; animation:twPop .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes twPop{from{transform:translateY(16px) scale(.96); opacity:0;} to{transform:none; opacity:1;}}
+.tw-eyebrow{font-family:'DM Mono',monospace; font-size:11px; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:var(--ink); background:var(--lime); display:inline-block; padding:5px 12px; border-radius:2px; margin-bottom:18px;}
+.tw-title{font-family:'Bebas Neue',sans-serif; font-size:clamp(42px,7vw,62px); line-height:0.9; letter-spacing:0.02em; color:var(--ink); margin-bottom:14px;}
+.tw-title span{color:var(--rust);}
+.tw-text{font-family:'DM Sans',sans-serif; font-size:15px; line-height:1.65; color:var(--slate-light); font-weight:300; max-width:450px; margin-bottom:26px;}
+.tw-text strong{color:var(--ink); font-weight:600;}
+.tw-actions{display:flex; flex-wrap:wrap; gap:12px; margin-bottom:18px;}
+.tw-btn{font-family:'DM Mono',monospace; font-size:13px; font-weight:700; letter-spacing:0.06em; cursor:pointer; border:2px solid var(--ink); border-radius:4px; padding:13px 20px; background:var(--paper); color:var(--ink); transition:transform .15s, box-shadow .15s;}
+.tw-btn:hover{transform:translate(-2px,-2px); box-shadow:4px 4px 0 var(--ink);}
+.tw-btn:active{transform:translate(1px,1px); box-shadow:1px 1px 0 var(--ink);}
+.tw-btn.primary{background:var(--lime);}
+.tw-hint{font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.04em; color:var(--muted);}
+.tw-hint b{color:var(--ink);}
+#tourLaunch.spotlight{z-index:710; animation:twPulse 1.1s ease-in-out infinite;}
+@keyframes twPulse{0%,100%{box-shadow:0 0 0 0 rgba(200,245,58,0.6), 3px 3px 0 var(--ink);} 50%{box-shadow:0 0 0 11px rgba(200,245,58,0), 3px 3px 0 var(--ink);}}
+</style>
+
+<button id="tourLaunch"><span class="tl-ico">☁</span>Guided Tour</button>
+<div id="tourWelcome">
+  <div class="tw-card">
+    <div class="tw-eyebrow">Welcome · Group 2</div>
+    <h2 class="tw-title">New here? <span>Start with the tour.</span></h2>
+    <p class="tw-text">We <strong>highly recommend</strong> taking the Guided Tour — a quick, cloud-by-cloud walkthrough of the Overview, the Learn chapters, and the three Studio tools (CLI, Verkle Lab, and the Practical Tool) — so you know exactly what’s here and how to use it.</p>
+    <div class="tw-actions">
+      <button class="tw-btn primary" id="twStart"><span>☁</span> Start the Guided Tour</button>
+      <button class="tw-btn" id="twClose">I’ll explore on my own</button>
+    </div>
+    <div class="tw-hint">You can relaunch it anytime from the <b>☁ Guided Tour</b> button in the bottom-left corner.</div>
+  </div>
+</div>
+<div id="tourCatch"></div>
+<div id="tourRing"></div>
+<div id="tourCloud">
+  <div class="tc-shape">
+    <span class="tc-puff" style="left:5%;top:-13px;width:56px;height:56px;"></span>
+    <span class="tc-puff" style="left:30%;top:-17px;width:74px;height:74px;"></span>
+    <span class="tc-puff" style="left:60%;top:-13px;width:60px;height:60px;"></span>
+    <span class="tc-puff" style="left:12%;bottom:-12px;width:58px;height:58px;"></span>
+    <span class="tc-puff" style="left:50%;bottom:-15px;width:68px;height:68px;"></span>
+    <span class="tc-puff" style="left:-16px;top:26%;width:50px;height:50px;"></span>
+    <span class="tc-puff" style="right:-16px;top:30%;width:54px;height:54px;"></span>
+    <span class="tc-pt" id="tcPt1"></span>
+    <span class="tc-pt" id="tcPt2"></span>
+    <div class="tc-body">
+      <div class="tc-head"><span class="tc-badge" id="tcBadge">Step 1</span><span class="tc-title" id="tcTitle"></span></div>
+      <div class="tc-text" id="tcText"></div>
+      <div class="tc-foot">
+        <div class="tc-dots" id="tcDots"></div>
+        <div class="tc-btns">
+          <button class="tc-skip" id="tcSkip">Skip</button>
+          <button class="tc-btn" id="tcBack">Back</button>
+          <button class="tc-btn primary" id="tcNext">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const STEPS=[
+    {sel:'.nav-pill[data-nav="landing"]', title:'Overview', text:'This is the landing page — a quick intro to Verkle Trees and the team behind the project. Start here to get the big picture before diving in.', action:()=>goSection('landing')},
+    {sel:'.nav-pill[data-nav="learning"]', title:'Learn', text:'The Learn section walks you through seven chapters — from the problem Ethereum faces today to how Verkle proofs shrink witnesses. Interactive demos and a slider let you feel each concept.', action:()=>goSection('learning')},
+    {sel:'.nav-pill[data-nav="studio"]', title:'Studio', text:'The Studio is your hands-on playground, running entirely in your browser. It bundles three tools — let’s look at each one.', action:()=>goSection('studio')},
+    {sel:'.studio-tab[data-tab="cli"]', title:'CLI', text:'A simulated Verkle command line. Insert accounts, show the tree, and generate proofs — type commands or tap the shortcut buttons to explore the state trie.', action:()=>{goSection('studio'); clickTab('cli');}},
+    {sel:'.studio-tab[data-tab="lab"]', title:'Verkle Lab', text:'A visual lab where the tree is drawn for you. Watch commitments and proof paths light up as you interact — the intuition-building companion to the CLI.', action:()=>{goSection('studio'); clickTab('lab');}},
+    {sel:'.studio-tab[data-tab="practical"]', title:'Practical Tool', text:'The practical tool ties it all together with a real-world style workflow. This is the last stop of the tour — now go ahead and try everything yourself!', action:()=>{goSection('studio'); clickTab('practical');}},
+  ];
+
+  const launch=document.getElementById('tourLaunch'),
+        catchEl=document.getElementById('tourCatch'),
+        ring=document.getElementById('tourRing'),
+        cloud=document.getElementById('tourCloud'),
+        pt1=document.getElementById('tcPt1'),
+        pt2=document.getElementById('tcPt2'),
+        badge=document.getElementById('tcBadge'),
+        titleEl=document.getElementById('tcTitle'),
+        textEl=document.getElementById('tcText'),
+        dotsEl=document.getElementById('tcDots'),
+        backBtn=document.getElementById('tcBack'),
+        nextBtn=document.getElementById('tcNext'),
+        skipBtn=document.getElementById('tcSkip');
+
+  let cur=0, running=false, busy=false;
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  function goSection(id){const b=document.querySelector('[data-nav="'+id+'"]'); if(b) b.click();}
+  function clickTab(t){const b=document.querySelector('.studio-tab[data-tab="'+t+'"]'); if(b) b.click();}
+
+  dotsEl.innerHTML=STEPS.map(()=>'<span class="tc-dot"></span>').join('');
+  const dots=dotsEl.querySelectorAll('.tc-dot');
+
+  async function start(){ if(running) return; closeWelcome(); running=true; launch.style.display='none'; catchEl.style.display='block'; ring.style.display='block'; await showStep(0); }
+  function end(goHome){ running=false; cloud.classList.remove('show'); cloud.style.visibility='hidden'; catchEl.style.display='none'; ring.style.display='none'; launch.style.display='inline-flex'; if(goHome===true) goSection('landing'); }
+
+  async function showStep(i){
+    if(busy) return; busy=true; cur=i;
+    const s=STEPS[i];
+    cloud.classList.remove('show');
+    if(s.action) s.action();
+    await wait(480);
+    const el=document.querySelector(s.sel);
+    if(!el){ busy=false; return; }
+    el.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+    await wait(460);
+    render(s,i,el);
+    busy=false;
+  }
+
+  function render(s,i,el){
+    badge.textContent='Step '+(i+1)+' / '+STEPS.length;
+    titleEl.textContent=s.title;
+    textEl.textContent=s.text;
+    dots.forEach((d,k)=>d.classList.toggle('on',k===i));
+    backBtn.style.visibility = i===0 ? 'hidden':'visible';
+    nextBtn.textContent = i===STEPS.length-1 ? 'Finish ✓' : 'Next →';
+
+    const r=el.getBoundingClientRect();
+    ring.style.top=(r.top-6)+'px'; ring.style.left=(r.left-6)+'px';
+    ring.style.width=(r.width+12)+'px'; ring.style.height=(r.height+12)+'px';
+
+    // measure cloud (made visible for sizing)
+    cloud.style.visibility='hidden'; cloud.classList.add('show');
+    const cw=cloud.offsetWidth, ch=cloud.offsetHeight;
+    const vw=innerWidth, vh=innerHeight;
+    let place='below', top=r.bottom+64;
+    if(top+ch>vh-12){ place='above'; top=r.top-ch-64; }
+    if(top<12){ top=clamp(r.bottom+64, 12, vh-ch-12); place = top<r.top ? 'above':'below'; }
+    let left=clamp(r.left+r.width/2-cw/2, 20, vw-cw-20);
+    cloud.style.top=top+'px'; cloud.style.left=left+'px';
+    cloud.style.visibility='visible';
+
+    // pointer wisps: detached shrinking trail sitting in the gap toward the target
+    const tx=clamp(r.left+r.width/2-left, 40, cw-40);
+    pt1.style.width=pt1.style.height='22px'; pt1.style.left=(tx-11)+'px';
+    pt2.style.width=pt2.style.height='13px'; pt2.style.left=(tx+3)+'px';
+    if(place==='below'){
+      pt1.style.top='-40px'; pt1.style.bottom='auto';
+      pt2.style.top='-60px'; pt2.style.bottom='auto';
+    }else{
+      pt1.style.bottom='-40px'; pt1.style.top='auto';
+      pt2.style.bottom='-60px'; pt2.style.top='auto';
+    }
+  }
+
+  launch.addEventListener('click', start);
+  skipBtn.addEventListener('click', end);
+  backBtn.addEventListener('click', ()=>{ if(cur>0) showStep(cur-1); });
+  nextBtn.addEventListener('click', ()=>{ if(cur<STEPS.length-1) showStep(cur+1); else end(true); });
+  catchEl.addEventListener('click', end);
+  addEventListener('resize', ()=>{ if(running && !busy){ const el=document.querySelector(STEPS[cur].sel); if(el) render(STEPS[cur],cur,el); } });
+  document.addEventListener('keydown', e=>{
+    if(welcome.classList.contains('show')){ if(e.key==='Escape') closeWelcome(); return; }
+    if(!running) return;
+    if(e.key==='Escape') end();
+    else if(e.key==='ArrowRight'||e.key==='Enter'){ if(cur<STEPS.length-1) showStep(cur+1); else end(true); }
+    else if(e.key==='ArrowLeft'){ if(cur>0) showStep(cur-1); }
+  });
+
+  // first-open welcome popup
+  const welcome=document.getElementById('tourWelcome'),
+        twStart=document.getElementById('twStart'),
+        twClose=document.getElementById('twClose');
+  function openWelcome(){ welcome.classList.add('show'); launch.classList.add('spotlight'); }
+  function closeWelcome(){ welcome.classList.remove('show'); launch.classList.remove('spotlight'); }
+  twStart.addEventListener('click', ()=>{ closeWelcome(); start(); });
+  twClose.addEventListener('click', closeWelcome);
+  welcome.addEventListener('click', e=>{ if(e.target===welcome) closeWelcome(); });
+  window.addEventListener('load', ()=>setTimeout(openWelcome, 400));
+})();
 </script>
 </body>
 </html>
